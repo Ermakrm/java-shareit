@@ -1,25 +1,26 @@
 package ru.practicum.shareit.item.mapper;
 
+import org.mapstruct.*;
+import org.springframework.stereotype.Component;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemResponseDto;
 import ru.practicum.shareit.item.model.Item;
 
-public class ItemMapper {
+@Component
+@Mapper(componentModel = "spring")
 
-    public static ItemDto toItemDto(Item item) {
-        ItemDto itemDto = new ItemDto();
-        itemDto.setId(item.getId());
-        itemDto.setName(item.getName());
-        itemDto.setDescription(item.getDescription());
-        itemDto.setAvailable(item.getAvailable());
-        return itemDto;
-    }
+public interface ItemMapper {
 
-    public static Item toItem(ItemDto itemDto) {
-        Item item = new Item();
-        item.setId(itemDto.getId());
-        item.setName(itemDto.getName());
-        item.setDescription(itemDto.getDescription());
-        item.setAvailable(itemDto.getAvailable());
-        return item;
-    }
+    @BeanMapping(unmappedTargetPolicy = ReportingPolicy.IGNORE)
+    ItemDto toItemDto(Item item);
+
+    @BeanMapping(unmappedTargetPolicy = ReportingPolicy.IGNORE)
+    Item toItem(ItemDto itemDto);
+
+    @BeanMapping(unmappedTargetPolicy = ReportingPolicy.IGNORE)
+    ItemResponseDto toItemResponse(Item item);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
+            unmappedTargetPolicy = ReportingPolicy.IGNORE)
+    void updateItemFromDto(ItemDto dto, @MappingTarget Item entity);
 }
