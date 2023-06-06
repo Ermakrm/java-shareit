@@ -1,9 +1,7 @@
 package ru.practicum.shareit.item.dto;
 
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import ru.practicum.shareit.booking.dto.BookingInfoDto;
 import ru.practicum.shareit.item.dto.comment.CommentResponseDto;

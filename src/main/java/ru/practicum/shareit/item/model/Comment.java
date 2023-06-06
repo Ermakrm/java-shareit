@@ -1,6 +1,8 @@
 package ru.practicum.shareit.item.model;
 
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.DynamicUpdate;
 import ru.practicum.shareit.user.model.User;
