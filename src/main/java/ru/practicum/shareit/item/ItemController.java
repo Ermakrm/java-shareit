@@ -22,7 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ItemController {
-    final static String USER_ID = "X-Sharer-User-Id";
+    static final String USER_ID = "X-Sharer-User-Id";
     ItemService itemService;
     ItemMapper itemMapper;
     ItemListMapper itemListMapper;
