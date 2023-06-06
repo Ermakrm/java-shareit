@@ -3,50 +3,60 @@ package ru.practicum.shareit.user.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.exception.EmailAlreadyExistsException;
+import ru.practicum.shareit.user.exception.UserNotFoundException;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.repository.UserStorage;
+import ru.practicum.shareit.user.repository.UserRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class UserServiceImpl implements UserService {
-    private final UserStorage userStorage;
+    private final UserMapper userMapper;
+    private final UserRepository userRepository;
 
     @Autowired
-    public UserServiceImpl(UserStorage userStorage) {
-        this.userStorage = userStorage;
+    public UserServiceImpl(UserMapper userMapper, UserRepository userRepository) {
+        this.userMapper = userMapper;
+        this.userRepository = userRepository;
     }
 
     @Override
-    public List<UserDto> getAllUsers() {
-        List<User> users = userStorage.getUsers();
-        List<UserDto> usersDto = new ArrayList<>();
-        for (User user : users) {
-            usersDto.add(UserMapper.toUserDto(user));
-        }
-        return usersDto;
+    public List<User> findAll() {
+        return userRepository.findAll();
     }
 
     @Override
-    public UserDto getUser(Long userId) {
-        return UserMapper.toUserDto(userStorage.getUser(userId));
+    public User findById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
     }
 
     @Override
-    public UserDto updateUser(UserDto user, Long id) {
+    public User update(UserDto user, Long id) {
         user.setId(id);
-        return UserMapper.toUserDto(userStorage.updateUser(UserMapper.toUser(user)));
+        User newUser = userRepository.findById(id).orElseThrow();
+        userMapper.updateUserFromDto(user, newUser);
+        try {
+            return userRepository.save(newUser);
+        } catch (RuntimeException e) {
+            throw new EmailAlreadyExistsException("Email already exist");
+        }
     }
 
     @Override
-    public void deleteUser(Long userId) {
-        userStorage.deleteUser(userId);
+    public void delete(Long userId) {
+        userRepository.deleteById(userId);
     }
 
     @Override
-    public UserDto createUser(UserDto user) {
-        return UserMapper.toUserDto(userStorage.addUser(UserMapper.toUser(user)));
+    public User create(UserDto user) {
+        try {
+            return userRepository.save(userMapper.toUser(user));
+        } catch (RuntimeException e) {
+            throw new EmailAlreadyExistsException("Email already exist");
+        }
+
     }
 }
