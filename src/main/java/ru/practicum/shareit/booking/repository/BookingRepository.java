@@ -21,11 +21,13 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     List<Booking> findByBookerIdAndStartIsAfterOrderByStartDesc(Long bookerId, LocalDateTime start);
 
-    List<Booking> findAllByBookerIdAndStartBeforeAndEndAfterOrderByIdAsc(Long bookerId, LocalDateTime start,
-                                                                         LocalDateTime end);
+    List<Booking> findAllByBookerIdAndStartBeforeAndEndAfterOrderByIdAsc(
+            Long bookerId, LocalDateTime start, LocalDateTime end
+    );
 
-    List<Booking> findByBookerIdAndItemIdAndEndIsBeforeAndStatusOrderByStartDesc(Long bookerId, Long itemId, LocalDateTime now,
-                                                                                 Status status);
+    List<Booking> findByBookerIdAndItemIdAndEndIsBeforeAndStatusOrderByStartDesc(
+            Long bookerId, Long itemId, LocalDateTime now, Status status
+    );
 
     @Query("SELECT b FROM Booking b, Item i WHERE b.item.id = i.id AND i.owner = :owner " +
             "ORDER BY b.start DESC")

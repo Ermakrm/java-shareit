@@ -1,6 +1,8 @@
 package ru.practicum.shareit.item.service;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -26,14 +28,15 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ItemServiceImpl implements ItemService {
 
-    private final ItemMapper itemMapper;
-    private final ItemRepository itemRepository;
-    private final UserService userService;
-    private final BookingService bookingService;
-    private final CommentRepository commentRepository;
-    private final CommentListMapper commentListMapper;
+    ItemMapper itemMapper;
+    ItemRepository itemRepository;
+    UserService userService;
+    BookingService bookingService;
+    CommentRepository commentRepository;
+    CommentListMapper commentListMapper;
 
     @Override
     public Item create(ItemDto itemDto, Long userId) {
@@ -69,9 +72,7 @@ public class ItemServiceImpl implements ItemService {
         Item item = findById(itemId);
         ItemResponseDto result = addBookingsToItem(item);
 
-        if (item.getOwner().getId().equals(userId)) {
-            return result;
-        } else {
+        if (!Objects.equals(item.getOwner().getId(), userId)) {
             result.setLastBooking(null);
             result.setNextBooking(null);
         }
@@ -105,17 +106,15 @@ public class ItemServiceImpl implements ItemService {
 
     private ItemResponseDto addBookingsToItem(Item item) {
         ItemResponseDto dto = itemMapper.toItemResponse(item);
+
         dto.setLastBooking(bookingService.findLastBookingByItemId(item.getId()));
         dto.setNextBooking(bookingService.findNextBookingByItemId(item.getId()));
+
         List<CommentResponseDto> comments = commentListMapper.toCommentResponseList(
                 commentRepository.findAllByItem_Id(item.getId())
         );
 
-        if (comments.isEmpty()) {
-            dto.setComments(Collections.emptyList());
-        } else {
-            dto.setComments(comments);
-        }
+        dto.setComments(comments);
         return dto;
     }
 }

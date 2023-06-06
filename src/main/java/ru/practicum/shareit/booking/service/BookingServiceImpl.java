@@ -1,5 +1,7 @@
 package ru.practicum.shareit.booking.service;
 
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingInfoDto;
@@ -23,12 +25,13 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class BookingServiceImpl implements BookingService {
 
-    private final BookingRepository bookingRepository;
-    private final UserService userService;
-    private final ItemService itemService;
-    private final BookingMapper bookingMapper;
+    BookingRepository bookingRepository;
+    UserService userService;
+    ItemService itemService;
+    BookingMapper bookingMapper;
 
     public BookingServiceImpl(BookingRepository bookingRepository, UserService userService,
                               @Lazy ItemService itemService, BookingMapper bookingMapper) {
@@ -42,6 +45,7 @@ public class BookingServiceImpl implements BookingService {
     public Booking create(Booking booking, Long bookerId) {
         User user = userService.findById(bookerId);
         Item item = itemService.findById(booking.getItem().getId());
+
         if (Objects.equals(item.getOwner().getId(), user.getId())) {
             throw new ItemNotFoundException("Owner can't book the item he owns");
         }
@@ -49,6 +53,7 @@ public class BookingServiceImpl implements BookingService {
         if (!item.getAvailable()) {
             throw new ItemNotAvailableException(String.format("Item with id %d is not available", item.getId()));
         }
+
         booking.setItem(item);
         booking.setBooker(user);
         booking.setStatus(Status.WAITING);

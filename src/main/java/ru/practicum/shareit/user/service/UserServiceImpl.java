@@ -1,5 +1,7 @@
 package ru.practicum.shareit.user.service;
 
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -12,9 +14,10 @@ import ru.practicum.shareit.user.repository.UserRepository;
 import java.util.List;
 
 @Service
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserServiceImpl implements UserService {
-    private final UserMapper userMapper;
-    private final UserRepository userRepository;
+    UserMapper userMapper;
+    UserRepository userRepository;
 
     @Autowired
     public UserServiceImpl(UserMapper userMapper, UserRepository userRepository) {
@@ -57,6 +60,5 @@ public class UserServiceImpl implements UserService {
         } catch (RuntimeException e) {
             throw new EmailAlreadyExistsException("Email already exist");
         }
-
     }
 }

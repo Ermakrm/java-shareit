@@ -1,6 +1,8 @@
 package ru.practicum.shareit.booking;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
@@ -18,11 +20,12 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping(path = "/bookings")
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class BookingController {
 
-    private static final String USER_ID = "X-Sharer-User-Id";
-    private final BookingService bookingService;
-    private final BookingMapper bookingMapper;
+    static final String USER_ID = "X-Sharer-User-Id";
+    BookingService bookingService;
+    BookingMapper bookingMapper;
 
     @PostMapping
     public BookingResponseDto create(

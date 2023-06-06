@@ -1,20 +1,23 @@
 package ru.practicum.shareit.item.dto;
 
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import ru.practicum.shareit.booking.dto.BookingInfoDto;
 import ru.practicum.shareit.item.dto.comment.CommentResponseDto;
 
 import java.util.List;
 
 @Data
-@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class ItemResponseDto {
-    private Long id;
-    private String name;
-    private String description;
-    private Boolean available;
-    private BookingInfoDto lastBooking;
-    private BookingInfoDto nextBooking;
-    private List<CommentResponseDto> comments;
+    Long id;
+    String name;
+    String description;
+    Boolean available;
+    BookingInfoDto lastBooking;
+    BookingInfoDto nextBooking;
+    List<CommentResponseDto> comments;
 }

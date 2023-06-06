@@ -1,6 +1,8 @@
 package ru.practicum.shareit.user;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserListMapper;
@@ -16,10 +18,11 @@ import java.util.List;
 @RestController
 @RequestMapping(path = "/users")
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserController {
-    private final UserService userService;
-    private final UserMapper userMapper;
-    private final UserListMapper userListMapper;
+    UserService userService;
+    UserMapper userMapper;
+    UserListMapper userListMapper;
 
     @GetMapping
     public List<UserDto> getAllUsers() {
