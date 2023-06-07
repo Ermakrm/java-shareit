@@ -1,6 +1,6 @@
-package ru.practicum.shareit.booking;
+package ru.practicum.shareit.booking.model;
 
-enum Status {
+public enum Status {
     WAITING, // новое бронирование, ожидает одобрения
     APPROVED, //бронирование подтверждено владельцем
     REJECTED, // бронирование отклонено владельцем

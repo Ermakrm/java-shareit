@@ -1,56 +1,120 @@
 package ru.practicum.shareit.item.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemResponseDto;
+import ru.practicum.shareit.item.dto.comment.CommentResponseDto;
+import ru.practicum.shareit.item.exception.IllegalCommentException;
+import ru.practicum.shareit.item.exception.ItemNotFoundException;
+import ru.practicum.shareit.item.exception.WrongOwnerException;
+import ru.practicum.shareit.item.mapper.CommentListMapper;
 import ru.practicum.shareit.item.mapper.ItemMapper;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.repository.ItemStorage;
+import ru.practicum.shareit.item.repository.CommentRepository;
+import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.service.UserService;
 
-import java.util.ArrayList;
+import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ItemServiceImpl implements ItemService {
 
-    private final ItemStorage itemStorage;
+    ItemMapper itemMapper;
+    ItemRepository itemRepository;
+    UserService userService;
+    BookingService bookingService;
+    CommentRepository commentRepository;
+    CommentListMapper commentListMapper;
 
-    @Autowired
-    public ItemServiceImpl(ItemStorage itemStorage) {
-        this.itemStorage = itemStorage;
+    @Override
+    public Item create(ItemDto itemDto, Long userId) {
+        User user = userService.findById(userId);
+        Item item = itemMapper.toItem(itemDto);
+        item.setOwner(user);
+        return itemRepository.save(item);
     }
 
     @Override
-    public ItemDto createItem(ItemDto itemDto, Long userId) {
-        return ItemMapper.toItemDto(itemStorage.createItem(ItemMapper.toItem(itemDto), userId));
-    }
-
-    @Override
-    public ItemDto updateItem(ItemDto itemDto, Long itemId, Long userId) {
-        itemDto.setId(itemId);
-        return ItemMapper.toItemDto(itemStorage.updateItem(ItemMapper.toItem(itemDto), userId));
-    }
-
-    @Override
-    public ItemDto getItem(Long itemId) {
-        return ItemMapper.toItemDto(itemStorage.getItem(itemId));
-    }
-
-    @Override
-    public List<ItemDto> getAllItems(Long userId) {
-        return toItemDtoList(itemStorage.getAllItems(userId));
-    }
-
-    @Override
-    public List<ItemDto> search(String text) {
-        return toItemDtoList(itemStorage.search(text));
-    }
-
-    private List<ItemDto> toItemDtoList(List<Item> items) {
-        List<ItemDto> itemsDto = new ArrayList<>();
-        for (Item item : items) {
-            itemsDto.add(ItemMapper.toItemDto(item));
+    public Item update(ItemDto itemDto, Long itemId, Long userId) {
+        Item item = findById(itemId);
+        itemMapper.updateItemFromDto(itemDto, item);
+        if (!Objects.equals(userId, item.getOwner().getId())) {
+            throw new WrongOwnerException("Wrong owner");
         }
-        return itemsDto;
+        return itemRepository.save(item);
+    }
+
+    @Override
+    public Item findById(Long itemId) {
+        return itemRepository.findById(itemId)
+                .orElseThrow(() -> new ItemNotFoundException("Item not found"));
+    }
+
+    @Override
+    public List<Item> search(String text) {
+        return text.isBlank() ? Collections.emptyList() : itemRepository.search(text);
+    }
+
+    @Override
+    public ItemResponseDto findByIdWithBookings(Long itemId, Long userId) {
+        Item item = findById(itemId);
+        ItemResponseDto result = addBookingsToItem(item);
+
+        if (!Objects.equals(item.getOwner().getId(), userId)) {
+            result.setLastBooking(null);
+            result.setNextBooking(null);
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<ItemResponseDto> findAllByOwnerId(Long ownerId) {
+        return itemRepository.findAllByOwnerIdOrderById(ownerId).stream()
+                .map(this::addBookingsToItem)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Comment addComment(Long userId, Long itemId, Comment comment) {
+        User user = userService.findById(userId);
+        Item item = findById(itemId);
+
+        if (!bookingService.hasUserBookedItem(userId, itemId)) {
+            throw new IllegalCommentException(String.format("User with id %d has never booked item with id %d ",
+                    userId, itemId));
+        }
+
+        comment.setAuthor(user);
+        comment.setItem(item);
+        comment.setCreated(LocalDateTime.now());
+
+        return commentRepository.save(comment);
+    }
+
+    private ItemResponseDto addBookingsToItem(Item item) {
+        ItemResponseDto dto = itemMapper.toItemResponse(item);
+
+        dto.setLastBooking(bookingService.findLastBookingByItemId(item.getId()));
+        dto.setNextBooking(bookingService.findNextBookingByItemId(item.getId()));
+
+        List<CommentResponseDto> comments = commentListMapper.toCommentResponseList(
+                commentRepository.findAllByItem_Id(item.getId())
+        );
+
+        dto.setComments(comments);
+        return dto;
     }
 }

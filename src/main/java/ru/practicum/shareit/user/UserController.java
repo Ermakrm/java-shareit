@@ -1,8 +1,12 @@
 package ru.practicum.shareit.user;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.mapper.UserListMapper;
+import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.service.UserService;
 
 import javax.validation.Valid;
@@ -13,37 +17,36 @@ import java.util.List;
  */
 @RestController
 @RequestMapping(path = "/users")
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserController {
-    private final UserService userService;
-
-    @Autowired
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
+    UserService userService;
+    UserMapper userMapper;
+    UserListMapper userListMapper;
 
     @GetMapping
     public List<UserDto> getAllUsers() {
-        return userService.getAllUsers();
+        return userListMapper.toUserDtoList(userService.findAll());
     }
 
     @PostMapping
     public UserDto createUser(@Valid @RequestBody UserDto user) {
-        return userService.createUser(user);
+        return userMapper.toUserDto(userService.create(user));
     }
 
     @GetMapping("/{userId}")
     public UserDto getUser(@PathVariable Long userId) {
-        return userService.getUser(userId);
+        return userMapper.toUserDto(userService.findById(userId));
     }
 
     @PatchMapping("/{userId}")
     public UserDto updateUser(@RequestBody UserDto user, @PathVariable Long userId) {
-        return userService.updateUser(user, userId);
+        return userMapper.toUserDto(userService.update(user, userId));
     }
 
     @DeleteMapping("/{userId}")
     public void deleteUser(@PathVariable Long userId) {
-        userService.deleteUser(userId);
+        userService.delete(userId);
     }
 
 }
