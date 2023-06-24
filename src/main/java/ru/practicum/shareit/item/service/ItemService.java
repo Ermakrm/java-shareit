@@ -17,11 +17,13 @@ public interface ItemService {
 
     Item findById(Long itemId);
 
-    List<Item> search(String text);
+    List<Item> search(String text, int from, int size);
 
     ItemResponseDto findByIdWithBookings(Long itemId, Long userId);
 
-    List<ItemResponseDto> findAllByOwnerId(Long ownerId);
+    List<ItemResponseDto> findAllByOwnerId(Long ownerId, int from, int size);
 
     Comment addComment(Long userId, Long itemId, Comment comment);
+
+    List<ItemResponseDto> findAllByRequestId(Long requestId);
 }

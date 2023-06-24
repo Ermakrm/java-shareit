@@ -1,8 +1,9 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -12,11 +13,13 @@ import ru.practicum.shareit.item.exception.IllegalCommentException;
 import ru.practicum.shareit.item.exception.ItemNotFoundException;
 import ru.practicum.shareit.item.exception.WrongOwnerException;
 import ru.practicum.shareit.item.mapper.CommentListMapper;
+import ru.practicum.shareit.item.mapper.ItemListMapper;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.request.service.ItemRequestService;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
@@ -27,7 +30,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ItemServiceImpl implements ItemService {
 
@@ -37,12 +39,31 @@ public class ItemServiceImpl implements ItemService {
     BookingService bookingService;
     CommentRepository commentRepository;
     CommentListMapper commentListMapper;
+    ItemListMapper itemListMapper;
+    ItemRequestService itemRequestService;
+
+    public ItemServiceImpl(ItemMapper itemMapper, ItemRepository itemRepository,
+                           UserService userService, BookingService bookingService,
+                           CommentRepository commentRepository, CommentListMapper commentListMapper,
+                           ItemListMapper itemListMapper, @Lazy ItemRequestService itemRequestService) {
+        this.itemMapper = itemMapper;
+        this.itemRepository = itemRepository;
+        this.userService = userService;
+        this.bookingService = bookingService;
+        this.commentRepository = commentRepository;
+        this.commentListMapper = commentListMapper;
+        this.itemListMapper = itemListMapper;
+        this.itemRequestService = itemRequestService;
+    }
 
     @Override
     public Item create(ItemDto itemDto, Long userId) {
         User user = userService.findById(userId);
         Item item = itemMapper.toItem(itemDto);
         item.setOwner(user);
+        if (itemDto.getRequestId() != null) {
+            item.setRequest(itemRequestService.getItemRequestById(itemDto.getRequestId()));
+        }
         return itemRepository.save(item);
     }
 
@@ -63,8 +84,9 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<Item> search(String text) {
-        return text.isBlank() ? Collections.emptyList() : itemRepository.search(text);
+    public List<Item> search(String text, int from, int size) {
+        int page = from / size;
+        return text.isBlank() ? Collections.emptyList() : itemRepository.search(text, PageRequest.of(page, size));
     }
 
     @Override
@@ -81,8 +103,9 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemResponseDto> findAllByOwnerId(Long ownerId) {
-        return itemRepository.findAllByOwnerIdOrderById(ownerId).stream()
+    public List<ItemResponseDto> findAllByOwnerId(Long ownerId, int from, int size) {
+        int page = from / size;
+        return itemRepository.findAllByOwnerIdOrderById(ownerId, PageRequest.of(page, size)).stream()
                 .map(this::addBookingsToItem)
                 .collect(Collectors.toList());
     }
@@ -103,6 +126,12 @@ public class ItemServiceImpl implements ItemService {
 
         return commentRepository.save(comment);
     }
+
+    @Override
+    public List<ItemResponseDto> findAllByRequestId(Long requestId) {
+        return itemListMapper.toItemResponseDtoList(itemRepository.findAllByRequestId(requestId));
+    }
+
 
     private ItemResponseDto addBookingsToItem(Item item) {
         ItemResponseDto dto = itemMapper.toItemResponse(item);

@@ -1,10 +1,9 @@
 package ru.practicum.shareit.user.service;
 
 import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.exception.EmailAlreadyExistsException;
 import ru.practicum.shareit.user.exception.UserNotFoundException;
 import ru.practicum.shareit.user.mapper.UserMapper;
@@ -15,19 +14,24 @@ import java.util.List;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
+
     UserMapper userMapper;
     UserRepository userRepository;
-
-    @Autowired
-    public UserServiceImpl(UserMapper userMapper, UserRepository userRepository) {
-        this.userMapper = userMapper;
-        this.userRepository = userRepository;
-    }
 
     @Override
     public List<User> findAll() {
         return userRepository.findAll();
+    }
+
+    @Override
+    public User create(User user) {
+        try {
+            return userRepository.save(user);
+        } catch (RuntimeException e) {
+            throw new EmailAlreadyExistsException("Email already exist");
+        }
     }
 
     @Override
@@ -37,9 +41,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User update(UserDto user, Long id) {
+    public User update(User user, Long id) {
         user.setId(id);
-        User newUser = userRepository.findById(id).orElseThrow();
+        User newUser = findById(id);
         userMapper.updateUserFromDto(user, newUser);
         try {
             return userRepository.save(newUser);
@@ -51,14 +55,5 @@ public class UserServiceImpl implements UserService {
     @Override
     public void delete(Long userId) {
         userRepository.deleteById(userId);
-    }
-
-    @Override
-    public User create(UserDto user) {
-        try {
-            return userRepository.save(userMapper.toUser(user));
-        } catch (RuntimeException e) {
-            throw new EmailAlreadyExistsException("Email already exist");
-        }
     }
 }

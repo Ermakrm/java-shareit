@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.DynamicUpdate;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
@@ -24,5 +25,6 @@ public class Item {
     Boolean available;
     @ManyToOne(targetEntity = User.class, fetch = FetchType.LAZY)
     User owner;
-    //Request request;
+    @ManyToOne(targetEntity = ItemRequest.class, fetch = FetchType.EAGER)
+    ItemRequest request;
 }
