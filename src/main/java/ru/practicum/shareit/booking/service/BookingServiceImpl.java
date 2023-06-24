@@ -3,6 +3,7 @@ package ru.practicum.shareit.booking.service;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingInfoDto;
 import ru.practicum.shareit.booking.exception.BookingNotFoundException;
@@ -115,34 +116,35 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<Booking> findByUserIdAndState(Long userId, String state) {
+    public List<Booking> findByUserIdAndState(Long userId, String state, int from, int size) {
         checkUserExists(userId);
 
         State requestBookingState = checkState(state);
-
+        int page = from / size;
+        PageRequest p = PageRequest.of(page, size);
         List<Booking> result = new ArrayList<>();
         switch (requestBookingState) {
             case ALL:
-                result = bookingRepository.findByBookerIdOrderByStartDesc(userId);
+                result = bookingRepository.findByBookerIdOrderByStartDesc(userId, p);
                 break;
 
             case FUTURE:
-                result = bookingRepository.findByBookerIdAndStartIsAfterOrderByStartDesc(userId, LocalDateTime.now());
+                result = bookingRepository.findByBookerIdAndStartIsAfterOrderByStartDesc(userId, LocalDateTime.now(), p);
                 break;
 
             case PAST:
-                result = bookingRepository.findByBookerIdAndEndIsBeforeOrderByStartDesc(userId, LocalDateTime.now());
+                result = bookingRepository.findByBookerIdAndEndIsBeforeOrderByStartDesc(userId, LocalDateTime.now(), p);
                 break;
 
             case CURRENT:
                 result = bookingRepository.findAllByBookerIdAndStartBeforeAndEndAfterOrderByIdAsc(userId, LocalDateTime.now(),
-                        LocalDateTime.now());
+                        LocalDateTime.now(), p);
                 break;
 
             case WAITING:
             case REJECTED:
                 Status bookingStatus = Status.valueOf(state);
-                result = bookingRepository.findByBookerIdAndStatusOrderByStartDesc(userId, bookingStatus);
+                result = bookingRepository.findByBookerIdAndStatusOrderByStartDesc(userId, bookingStatus, p);
                 break;
         }
 
@@ -150,34 +152,35 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<Booking> findByOwnerIdAndState(Long ownerId, String state) {
+    public List<Booking> findByOwnerIdAndState(Long ownerId, String state, int from, int size) {
         User owner = userService.findById(ownerId);
 
         State requestBookingState = checkState(state);
-
+        int page = from / size;
+        PageRequest p = PageRequest.of(page, size);
         List<Booking> result = new ArrayList<>();
         switch (requestBookingState) {
             case ALL:
-                result = bookingRepository.findByOwnerId(owner);
+                result = bookingRepository.findByOwnerId(owner, p);
                 break;
 
             case FUTURE:
-                result = bookingRepository.findByOwnerIdInFuture(owner);
+                result = bookingRepository.findByOwnerIdInFuture(owner, p);
                 break;
 
             case PAST:
-                result = bookingRepository.findByOwnerIdInPast(owner);
+                result = bookingRepository.findByOwnerIdInPast(owner, p);
                 break;
 
             case CURRENT:
-                result = bookingRepository.findByOwnerIdInCurrent(owner);
+                result = bookingRepository.findByOwnerIdInCurrent(owner, p);
                 break;
 
             case WAITING:
             case REJECTED:
                 Status bookingStatus = Status.valueOf(state);
 
-                result = bookingRepository.findByOwnerIdAndStatus(owner, bookingStatus);
+                result = bookingRepository.findByOwnerIdAndStatus(owner, bookingStatus, p);
                 break;
         }
 
