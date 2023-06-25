@@ -9,6 +9,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemResponseDto;
+import ru.practicum.shareit.item.exception.IllegalCommentException;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.model.User;
@@ -18,6 +20,7 @@ import javax.transaction.Transactional;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @TestPropertySource(properties = {"db.name=test"})
@@ -110,6 +113,13 @@ class ItemServiceIntegrationTest {
 
         assertEquals(expected.getId(), result.get(0).getId());
         assertEquals(expected.getDescription(), result.get(0).getDescription());
+    }
+
+    @Test
+    void addComment() {
+        assertThrows(IllegalCommentException.class,
+                () -> itemService.addComment(user1.getId(), item1.getId(), new Comment()));
+
     }
 
 }
