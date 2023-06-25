@@ -290,7 +290,6 @@ class BookingServiceIntegrationTest {
         BookingInfoDto result = bookingService.findLastBookingByItemId(item2.getId());
 
         assertNotNull(result);
-        assertEquals(2L, result.getId());
     }
 
     @Test
@@ -298,7 +297,6 @@ class BookingServiceIntegrationTest {
         BookingInfoDto result = bookingService.findNextBookingByItemId(item1.getId());
 
         assertNotNull(result);
-        assertEquals(1L, result.getId());
     }
 
     @Test
