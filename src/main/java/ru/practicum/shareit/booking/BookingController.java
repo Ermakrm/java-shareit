@@ -3,6 +3,7 @@ package ru.practicum.shareit.booking;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
@@ -12,6 +13,8 @@ import ru.practicum.shareit.booking.service.BookingService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,6 +24,7 @@ import java.util.stream.Collectors;
 @RequestMapping(path = "/bookings")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Validated
 public class BookingController {
 
     static final String USER_ID = "X-Sharer-User-Id";
@@ -52,16 +56,20 @@ public class BookingController {
     @GetMapping
     public Collection<BookingResponseDto> findAllByUserIdAndState(
             @RequestHeader(USER_ID) @NotNull Long userId,
-            @RequestParam(defaultValue = "ALL") String state) {
-        List<Booking> result = bookingService.findByUserIdAndState(userId, state);
+            @RequestParam(defaultValue = "ALL") String state,
+            @PositiveOrZero @RequestParam(required = false, defaultValue = "0") int from,
+            @Positive @RequestParam(required = false, defaultValue = "20") int size) {
+        List<Booking> result = bookingService.findByUserIdAndState(userId, state, from, size);
         return result.stream().map(bookingMapper::toBookingResponse).collect(Collectors.toList());
     }
 
     @GetMapping("/owner")
     public List<BookingResponseDto> findAllByOwnerIdAndState(
             @RequestHeader(USER_ID) @NotNull Long ownerId,
-            @RequestParam(defaultValue = "ALL") String state) {
-        List<Booking> result = bookingService.findByOwnerIdAndState(ownerId, state);
+            @RequestParam(defaultValue = "ALL") String state,
+            @PositiveOrZero @RequestParam(required = false, defaultValue = "0") int from,
+            @Positive @RequestParam(required = false, defaultValue = "20") int size) {
+        List<Booking> result = bookingService.findByOwnerIdAndState(ownerId, state, from, size);
         return result.stream().map(bookingMapper::toBookingResponse).collect(Collectors.toList());
     }
 }

@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking.repository;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,16 +14,16 @@ import java.util.List;
 
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, Long> {
-    List<Booking> findByBookerIdOrderByStartDesc(Long bookerId);
+    List<Booking> findByBookerIdOrderByStartDesc(Long bookerId, Pageable pageable);
 
-    List<Booking> findByBookerIdAndStatusOrderByStartDesc(Long bookerId, Status status);
+    List<Booking> findByBookerIdAndStatusOrderByStartDesc(Long bookerId, Status status, Pageable pageable);
 
-    List<Booking> findByBookerIdAndEndIsBeforeOrderByStartDesc(Long bookerId, LocalDateTime end);
+    List<Booking> findByBookerIdAndEndIsBeforeOrderByStartDesc(Long bookerId, LocalDateTime end, Pageable pageable);
 
-    List<Booking> findByBookerIdAndStartIsAfterOrderByStartDesc(Long bookerId, LocalDateTime start);
+    List<Booking> findByBookerIdAndStartIsAfterOrderByStartDesc(Long bookerId, LocalDateTime start, Pageable pageable);
 
     List<Booking> findAllByBookerIdAndStartBeforeAndEndAfterOrderByIdAsc(
-            Long bookerId, LocalDateTime start, LocalDateTime end
+            Long bookerId, LocalDateTime start, LocalDateTime end, Pageable pageable
     );
 
     List<Booking> findByBookerIdAndItemIdAndEndIsBeforeAndStatusOrderByStartDesc(
@@ -31,23 +32,23 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     @Query("SELECT b FROM Booking b, Item i WHERE b.item.id = i.id AND i.owner = :owner " +
             "ORDER BY b.start DESC")
-    List<Booking> findByOwnerId(@Param("owner") User owner);
+    List<Booking> findByOwnerId(@Param("owner") User owner, Pageable pageable);
 
     @Query("SELECT b FROM Booking b, Item i WHERE b.item.id = i.id AND i.owner = :owner AND " +
             "b.status = :status ORDER BY b.start DESC")
-    List<Booking> findByOwnerIdAndStatus(@Param("owner") User owner, @Param("status") Status status);
+    List<Booking> findByOwnerIdAndStatus(@Param("owner") User owner, @Param("status") Status status, Pageable pageable);
 
     @Query("SELECT b FROM Booking b, Item i WHERE b.item.id = i.id AND i.owner = :owner AND " +
             "b.start > CURRENT_TIMESTAMP ORDER BY b.start DESC")
-    List<Booking> findByOwnerIdInFuture(@Param("owner") User owner);
+    List<Booking> findByOwnerIdInFuture(@Param("owner") User owner, Pageable pageable);
 
     @Query("SELECT b FROM Booking b, Item i WHERE b.item.id = i.id AND i.owner = :owner AND " +
             "b.end < CURRENT_TIMESTAMP ORDER BY b.start DESC")
-    List<Booking> findByOwnerIdInPast(@Param("owner") User owner);
+    List<Booking> findByOwnerIdInPast(@Param("owner") User owner, Pageable pageable);
 
     @Query("SELECT b FROM Booking b, Item i WHERE b.item.id = i.id AND i.owner = :owner AND " +
             "b.start <= CURRENT_TIMESTAMP AND b.end >= CURRENT_TIMESTAMP ORDER BY b.start DESC")
-    List<Booking> findByOwnerIdInCurrent(@Param("owner") User owner);
+    List<Booking> findByOwnerIdInCurrent(@Param("owner") User owner, Pageable pageable);
 
     @Query(value = "SELECT * FROM Bookings WHERE item_id = :itemId AND start_date < CURRENT_TIMESTAMP AND " +
             "status = 'APPROVED' ORDER BY start_date DESC LIMIT 1", nativeQuery = true)
