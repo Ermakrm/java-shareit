@@ -42,7 +42,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     public List<ItemRequestResponseDto> findByUserId(Long userId) {
         userService.findById(userId);
         List<ItemRequestResponseDto> requests = requestListMapper.toResponseDtoList(
-                itemRequestRepository.findAllByRequesterId(userId)
+                itemRequestRepository.findAllByRequesterIdOrderByCreated(userId)
         );
         addItemsResponseDto(requests);
         return requests;
@@ -54,7 +54,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         int page = from / size;
 
         List<ItemRequestResponseDto> requests = requestListMapper.toResponseDtoList(
-                itemRequestRepository.findAllByRequesterIdNot(userId, PageRequest.of(page, size))
+                itemRequestRepository.findAllByRequesterIdNotOrderByCreated(userId, PageRequest.of(page, size))
         );
         addItemsResponseDto(requests);
         return requests;

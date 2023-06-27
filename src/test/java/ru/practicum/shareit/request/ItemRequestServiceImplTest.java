@@ -88,12 +88,12 @@ class ItemRequestServiceImplTest {
 
         when(requestListMapper.toResponseDtoList(any())).thenReturn(req);
         when(userService.findById(anyLong())).thenReturn(user1);
-        when(itemRequestRepository.findAllByRequesterId(userId)).thenReturn(List.of(request));
+        when(itemRequestRepository.findAllByRequesterIdOrderByCreated(userId)).thenReturn(List.of(request));
 
         List<ItemRequestResponseDto> result = service.findByUserId(userId);
 
         verify(userService, times(1)).findById(userId);
-        verify(itemRequestRepository, times(1)).findAllByRequesterId(userId);
+        verify(itemRequestRepository, times(1)).findAllByRequesterIdOrderByCreated(userId);
         verify(requestListMapper, times(1)).toResponseDtoList(anyList());
 
         assertEquals(req, result);
@@ -160,7 +160,7 @@ class ItemRequestServiceImplTest {
         requests.add(new ItemRequestResponseDto());
 
         when(userService.findById(userId)).thenReturn(user1);
-        when(itemRequestRepository.findAllByRequesterIdNot(userId, PageRequest.of(0, 10)))
+        when(itemRequestRepository.findAllByRequesterIdNotOrderByCreated(userId, PageRequest.of(0, 10)))
                 .thenReturn(List.of(request, new ItemRequest()));
         when(requestListMapper.toResponseDtoList(anyList())).thenReturn(requests);
 
@@ -168,7 +168,7 @@ class ItemRequestServiceImplTest {
 
         verify(userService, times(1)).findById(userId);
         verify(itemRequestRepository, times(1))
-                .findAllByRequesterIdNot(userId, PageRequest.of(0, 10));
+                .findAllByRequesterIdNotOrderByCreated(userId, PageRequest.of(0, 10));
 
         assertEquals(requests, result);
     }

@@ -70,7 +70,7 @@ class ItemRequestRepositoryTest {
     void findAllByRequesterId_byUser1() {
         List<ItemRequest> expectedRequests = List.of(request, request2);
 
-        List<ItemRequest> result = requestRepository.findAllByRequesterId(user1.getId());
+        List<ItemRequest> result = requestRepository.findAllByRequesterIdOrderByCreated(user1.getId());
 
         assertEquals(expectedRequests, result);
     }
@@ -79,7 +79,7 @@ class ItemRequestRepositoryTest {
     void findAllByRequesterId_byUser2() {
         List<ItemRequest> expectedRequests = List.of(request3);
 
-        List<ItemRequest> result = requestRepository.findAllByRequesterId(user2.getId());
+        List<ItemRequest> result = requestRepository.findAllByRequesterIdOrderByCreated(user2.getId());
 
         assertEquals(expectedRequests, result);
     }
@@ -89,7 +89,7 @@ class ItemRequestRepositoryTest {
 
         List<ItemRequest> expectedRequests = List.of(request3);
 
-        List<ItemRequest> result = requestRepository.findAllByRequesterIdNot(user1.getId(), pageRequest);
+        List<ItemRequest> result = requestRepository.findAllByRequesterIdNotOrderByCreated(user1.getId(), pageRequest);
 
         assertEquals(expectedRequests, result);
     }
@@ -98,7 +98,7 @@ class ItemRequestRepositoryTest {
     void findAllByRequesterIdNot_byUser2() {
         List<ItemRequest> expectedRequests = List.of(request, request2);
 
-        List<ItemRequest> result = requestRepository.findAllByRequesterIdNot(user2.getId(), pageRequest);
+        List<ItemRequest> result = requestRepository.findAllByRequesterIdNotOrderByCreated(user2.getId(), pageRequest);
 
         assertEquals(expectedRequests, result);
     }
