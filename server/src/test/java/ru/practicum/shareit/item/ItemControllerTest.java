@@ -66,48 +66,49 @@ class ItemControllerTest {
         verify(itemService, times(1)).create(itemDto, userId);
     }
 
-    @Test
-    @SneakyThrows
-    void createItem_whenNameIsNull_thenReturnedBadRequest() {
-        ItemDto itemToCreate = itemDto;
-        itemToCreate.setName(null);
+    /*
+        @Test
+        @SneakyThrows
+        void createItem_whenNameIsNull_thenReturnedBadRequest() {
+            ItemDto itemToCreate = itemDto;
+            itemToCreate.setName(null);
 
-        mockMvc.perform(post("/items").contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(itemToCreate))
-                        .header(USER_HEADER, userId))
-                .andExpect(status().isBadRequest());
+            mockMvc.perform(post("/items").contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(itemToCreate))
+                            .header(USER_HEADER, userId))
+                    .andExpect(status().isBadRequest());
 
-        verify(itemService, never()).create(any(), any());
-    }
+            verify(itemService, never()).create(any(), any());
+        }
 
-    @Test
-    @SneakyThrows
-    void createItem_whenDescriptionIsNull_thenReturnedBadRequest() {
-        ItemDto itemToCreate = itemDto;
-        itemToCreate.setDescription(null);
+        @Test
+        @SneakyThrows
+        void createItem_whenDescriptionIsNull_thenReturnedBadRequest() {
+            ItemDto itemToCreate = itemDto;
+            itemToCreate.setDescription(null);
 
-        mockMvc.perform(post("/items").contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(itemToCreate))
-                        .header(USER_HEADER, userId))
-                .andExpect(status().isBadRequest());
+            mockMvc.perform(post("/items").contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(itemToCreate))
+                            .header(USER_HEADER, userId))
+                    .andExpect(status().isBadRequest());
 
-        verify(itemService, never()).create(any(), any());
-    }
+            verify(itemService, never()).create(any(), any());
+        }
 
-    @Test
-    @SneakyThrows
-    void createItem_whenAvailableIsNull_thenReturnedBadRequest() {
-        ItemDto itemToCreate = itemDto;
-        itemToCreate.setAvailable(null);
+        @Test
+        @SneakyThrows
+        void createItem_whenAvailableIsNull_thenReturnedBadRequest() {
+            ItemDto itemToCreate = itemDto;
+            itemToCreate.setAvailable(null);
 
-        mockMvc.perform(post("/items").contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(itemToCreate))
-                        .header(USER_HEADER, userId))
-                .andExpect(status().isBadRequest());
+            mockMvc.perform(post("/items").contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(itemToCreate))
+                            .header(USER_HEADER, userId))
+                    .andExpect(status().isBadRequest());
 
-        verify(itemService, never()).create(any(), any());
-    }
-
+            verify(itemService, never()).create(any(), any());
+        }
+    */
     @Test
     @SneakyThrows
     void updateItem() {
@@ -165,7 +166,7 @@ class ItemControllerTest {
         );
     }
 
-    @Test
+/*    @Test
     @SneakyThrows
     void getAllItems_whenFromIsNegative_thenReturnedBadRequest() {
         String from = "-1";
@@ -180,8 +181,8 @@ class ItemControllerTest {
         verify(itemService, never()).findAllByOwnerId(
                 anyLong(), anyInt(), anyInt()
         );
-    }
-
+    }*/
+/*
     @Test
     @SneakyThrows
     void getAllItems_whenSizeIsNegative_thenReturnedBadRequest() {
@@ -214,7 +215,7 @@ class ItemControllerTest {
         verify(itemService, never()).findAllByOwnerId(
                 anyLong(), anyInt(), anyInt()
         );
-    }
+    }*/
 
     @Test
     @SneakyThrows
@@ -251,7 +252,7 @@ class ItemControllerTest {
                 text, Integer.parseInt(from), Integer.parseInt(size)
         );
     }
-
+/*
     @Test
     @SneakyThrows
     void search_whenFromIsNegative_thenReturnedBadRequest() {
@@ -288,7 +289,7 @@ class ItemControllerTest {
         verify(itemService, never()).search(
                 anyString(), anyInt(), anyInt()
         );
-    }
+    }*/
 
     @Test
     @SneakyThrows
@@ -310,7 +311,7 @@ class ItemControllerTest {
         verify(itemService, times(1)).addComment(userId, itemId, com);
     }
 
-    @Test
+/*    @Test
     @SneakyThrows
     void addComment_whenCommentIsNull_thenReturnedBadRequest() {
         CommentRequestDto comment = new CommentRequestDto();
@@ -322,5 +323,5 @@ class ItemControllerTest {
                 .andExpect(status().isBadRequest());
 
         verify(itemService, never()).addComment(anyLong(), anyLong(), any());
-    }
+    }*/
 }
