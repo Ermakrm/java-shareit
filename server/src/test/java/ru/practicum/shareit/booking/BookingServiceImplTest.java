@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.booking.exception.BookingNotFoundException;
+import ru.practicum.shareit.booking.exception.BookingWrongStateRequestedException;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.Status;
@@ -247,14 +248,14 @@ class BookingServiceImplTest {
         assertEquals("Booking with id 1 not found", e.getMessage());
     }
 
-/*    @Test
+    @Test
     void findByUserIdAndState_whenUnknownState_thenReturnBookingWrongStateRequestedThrown() {
         when(userService.findById(userId)).thenReturn(user1);
 
         BookingWrongStateRequestedException e = assertThrows(BookingWrongStateRequestedException.class,
                 () -> service.findByUserIdAndState(userId, "state", 0, 10));
         assertEquals("Unknown state: UNSUPPORTED_STATUS", e.getMessage());
-    }*/
+    }
 
     @Test
     void findByUserIdAndState_whenCaseAll_thenInvokedFindByBookerIdOrderByStartDescMethod() {
@@ -319,14 +320,14 @@ class BookingServiceImplTest {
                         anyLong(), any(Status.class), any(Pageable.class));
     }
 
-/*    @Test
+    @Test
     void findByOwnerIdAndState_whenUnknownState_thenReturnBookingWrongStateRequestedThrown() {
         when(userService.findById(userId)).thenReturn(user1);
 
         BookingWrongStateRequestedException e = assertThrows(BookingWrongStateRequestedException.class,
                 () -> service.findByOwnerIdAndState(userId, "state", 0, 10));
         assertEquals("Unknown state: UNSUPPORTED_STATUS", e.getMessage());
-    }*/
+    }
 
     @Test
     void findByOwnerIdAndState_whenCaseAll_thenInvokedFindByOwnerIdMethod() {

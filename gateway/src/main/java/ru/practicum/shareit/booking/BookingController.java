@@ -7,8 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
-import ru.practicum.shareit.booking.dto.BookingState;
-import ru.practicum.shareit.booking.exception.BookingWrongStateRequestedException;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -51,23 +49,19 @@ public class BookingController {
     @GetMapping
     public ResponseEntity<Object> findAllByUserIdAndState(
             @RequestHeader(USER_ID) @NotNull Long userId,
-            @RequestParam(defaultValue = "ALL") String stateParam,
+            @RequestParam(defaultValue = "ALL") String state,
             @PositiveOrZero @RequestParam(required = false, defaultValue = "0") int from,
             @Positive @RequestParam(required = false, defaultValue = "20") int size) {
 
-        BookingState state = BookingState.from(stateParam)
-                .orElseThrow(() -> new BookingWrongStateRequestedException("Unknown state: UNSUPPORTED_STATUS"));
         return bookingClient.findAllByUserIdAndState(userId, state, from, size);
     }
 
     @GetMapping("/owner")
     public ResponseEntity<Object> findAllByOwnerIdAndState(
             @RequestHeader(USER_ID) @NotNull Long ownerId,
-            @RequestParam(defaultValue = "ALL") String stateParam,
+            @RequestParam(defaultValue = "ALL") String state,
             @PositiveOrZero @RequestParam(required = false, defaultValue = "0") int from,
             @Positive @RequestParam(required = false, defaultValue = "20") int size) {
-        BookingState state = BookingState.from(stateParam)
-                .orElseThrow(() -> new BookingWrongStateRequestedException("Unknown state: UNSUPPORTED_STATUS"));
         return bookingClient.findAllByOwnerIdAndState(ownerId, state, from, size);
     }
 }

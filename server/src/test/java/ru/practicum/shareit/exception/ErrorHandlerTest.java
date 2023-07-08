@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.bind.MissingRequestHeaderException;
 import ru.practicum.shareit.booking.exception.BookingNotFoundException;
+import ru.practicum.shareit.booking.exception.BookingWrongStateRequestedException;
 import ru.practicum.shareit.item.exception.IllegalCommentException;
 import ru.practicum.shareit.item.exception.ItemNotAvailableException;
 import ru.practicum.shareit.item.exception.ItemNotFoundException;
@@ -40,14 +41,14 @@ class ErrorHandlerTest {
         assertEquals(e.getMessage(), result.getError());
     }
 
-/*    @Test
+    @Test
     void handleBookingWrongStateException() {
         BookingWrongStateRequestedException e = new BookingWrongStateRequestedException("message");
 
         ErrorResponse result = errorHandler.handleBookingWrongStateException(e);
 
         assertEquals(e.getMessage(), result.getError());
-    }*/
+    }
 
     @Test
     void handleEmailAlreadyExistException() {

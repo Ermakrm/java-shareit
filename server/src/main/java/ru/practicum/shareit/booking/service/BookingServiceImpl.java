@@ -7,6 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingInfoDto;
 import ru.practicum.shareit.booking.exception.BookingNotFoundException;
+import ru.practicum.shareit.booking.exception.BookingWrongStateRequestedException;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.State;
@@ -118,7 +119,7 @@ public class BookingServiceImpl implements BookingService {
     public List<Booking> findByUserIdAndState(Long userId, String state, int from, int size) {
         checkUserExists(userId);
 
-        State requestBookingState = State.valueOf(state);
+        State requestBookingState = checkState(state);
         int page = from / size;
         PageRequest p = PageRequest.of(page, size);
         List<Booking> result = new ArrayList<>();
@@ -154,7 +155,7 @@ public class BookingServiceImpl implements BookingService {
     public List<Booking> findByOwnerIdAndState(Long ownerId, String state, int from, int size) {
         User owner = userService.findById(ownerId);
 
-        State requestBookingState = State.valueOf(state);
+        State requestBookingState = checkState(state);
         int page = from / size;
         PageRequest p = PageRequest.of(page, size);
         List<Booking> result = new ArrayList<>();
@@ -205,4 +206,11 @@ public class BookingServiceImpl implements BookingService {
         userService.findById(userId);
     }
 
+    private State checkState(String state) {
+        try {
+            return State.valueOf(state);
+        } catch (IllegalArgumentException e) {
+            throw new BookingWrongStateRequestedException("Unknown state: UNSUPPORTED_STATUS");
+        }
+    }
 }
