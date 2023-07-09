@@ -10,7 +10,6 @@ import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.service.BookingService;
 
-import javax.validation.Valid;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,7 +27,7 @@ public class BookingController {
 
     @PostMapping
     public BookingResponseDto create(
-            @Valid @RequestBody BookingRequestDto bookingRequestDto,
+            @RequestBody BookingRequestDto bookingRequestDto,
             @RequestHeader(USER_ID) Long bookerId) {
         return bookingMapper.toBookingResponse(bookingService.create(bookingMapper.toBooking(bookingRequestDto),
                 bookerId));

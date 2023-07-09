@@ -8,7 +8,6 @@ import org.hibernate.annotations.DynamicUpdate;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotEmpty;
 import java.time.LocalDateTime;
 
 @Data
@@ -22,7 +21,6 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-    @NotEmpty(message = "Text can't be Empty.")
     @Column(name = "text", nullable = false, length = 1000)
     String text;
 
